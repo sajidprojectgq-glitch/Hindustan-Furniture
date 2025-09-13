@@ -1,0 +1,280 @@
+{% extends "index.html" %}
+{% block title %}Furniture Store{% endblock title %}
+
+{% block content %}
+<!-- Categories Section -->
+<section class="categories" id="categories">
+    <h1>Furniture Categories</h1>
+    <form method="get" class="category-form">
+        <ul class="category-list">
+            <li><button type="submit" class="category-btn" value="bed" name="category">Beds</button></li>
+            <li><button type="submit" class="category-btn" value="sofa" name="category">Sofas</button></li>
+            <li><button type="submit" class="category-btn" value="chair" name="category">Chairs</button></li>
+            <li><button type="submit" class="category-btn" value="table" name="category">Tables</button></li>
+            <li><button type="submit" class="category-btn" value="dresser" name="category">Dressers</button></li>
+            <li><button type="submit" class="category-btn" value="wardrobe" name="category">Wardrobes</button></li>
+            <li><button type="submit" class="category-btn" value="bookshelf" name="category">Bookshelves</button></li>
+            <li><button type="submit" class="category-btn" value="desk" name="category">Desks</button></li>
+            <li><button type="submit" class="category-btn" value="cabinet" name="category">Cabinets</button></li>
+            <li><button type="submit" class="category-btn" value="nightstand" name="category">Nightstands</button></li>
+            <li><button type="submit" class="category-btn" value="dining_set" name="category">Dining Sets</button></li>
+            <li><button type="submit" class="category-btn" value="coffee_table" name="category">Coffee Tables</button></li>
+            <li><button type="submit" class="category-btn" value="tv_stand" name="category">TV Stands</button></li>
+            <li><button type="submit" class="category-btn" value="ottoman" name="category">Ottomans</button></li>
+            <li><button type="submit" class="category-btn" value="recliner" name="category">Recliners</button></li>
+            <li><button type="submit" class="category-btn" value="shelving_unit" name="category">Shelving Units</button></li>
+            <li><button type="submit" class="category-btn" value="bench" name="category">Benches</button></li>
+            <li><button type="submit" class="category-btn" value="bar_stool" name="category">Bar Stools</button></li>
+            <li><button type="submit" class="category-btn" value="mattress" name="category">Mattresses</button></li>
+            <li><button type="submit" class="category-btn" value="outdoor_furniture" name="category">Outdoor Furniture</button></li>
+            <li><button type="submit" class="category-btn active" value="" name="category">All Categories</button></li> <!-- Add "All" button -->
+        </ul>
+        <!-- Preserve other filters when selecting category -->
+        {% if request.GET.sort %}<input type="hidden" name="sort" value="{{ request.GET.sort }}">{% endif %}
+        {% if request.GET.discount %}<input type="hidden" name="discount" value="{{ request.GET.discount }}">{% endif %}
+        {% if request.GET.in_stock %}<input type="hidden" name="in_stock" value="{{ request.GET.in_stock }}">{% endif %}
+        {% if request.GET.featured %}<input type="hidden" name="featured" value="{{ request.GET.featured }}">{% endif %}
+    </form>
+</section> 
+
+<!-- Products Section with Advanced Filters -->
+<section class="products" id="products">
+    <div class="filter-bar">
+        <h2>
+            {% if selected_category %}
+                Showing {{ selected_category|title }}s
+            {% else %}
+                All Products
+            {% endif %}
+            {% if products.paginator.num_pages > 1 %}
+                (Page {{ products.number }} of {{ products.paginator.num_pages }})
+            {% endif %}
+        </h2>
+        
+        <!-- Filter and Sort Form -->
+        <form method="get" class="filter-form">
+            <!-- Preserve category when filtering -->
+            {% if request.GET.category %}<input type="hidden" name="category" value="{{ request.GET.category }}">{% endif %}
+            
+            <!-- Sort Options -->
+            <div class="filter-group">
+                <label for="sort">Sort by:</label>
+                <select id="sort" name="sort" onchange="this.form.submit()">
+                    <option value="">Default</option>
+                    <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="date_desc" {% if request.GET.sort == 'date_desc' %}selected{% endif %}>Newest First</option>
+                    <option value="discount_desc" {% if request.GET.sort == 'discount_desc' %}selected{% endif %}>Highest Discount First</option>
+                    <option value="price_with_discount_asc" {% if request.GET.sort == 'price_with_discount_asc' %}selected{% endif %}>Discounted Price: Low to High</option>
+                </select>
+            </div>
+            
+            <!-- Discount Filter -->
+            <div class="filter-group checkbox-group">
+                <label>
+                    <input type="checkbox" name="discount" value="yes" {% if request.GET.discount == 'yes' %}checked{% endif %} onchange="this.form.submit()">
+                    Show Only Discounted Items
+                </label>
+            </div>
+            
+            <!-- In Stock Filter -->
+            <div class="filter-group checkbox-group">
+                <label>
+                    <input type="checkbox" name="in_stock" value="yes" {% if request.GET.in_stock == 'yes' %}checked{% endif %} onchange="this.form.submit()">
+                    In Stock Only (Stock > 0)
+                </label>
+            </div>
+            
+            <!-- Featured Filter -->
+            <div class="filter-group checkbox-group">
+                <label>
+                    <input type="checkbox" name="featured" value="yes" {% if request.GET.featured == 'yes' %}checked{% endif %} onchange="this.form.submit()">
+                    Featured Items Only
+                </label>
+            </div>
+            
+            <!-- Clear Filters Button -->
+            <button type="button" class="btn-clear" onclick="window.location.href='{% url 'your_view_name' %}'">Clear All Filters</button>
+        </form>
+    </div>
+    
+    <!-- Results Summary -->
+    <div class="results-summary">
+        {% if products %}
+            Showing {{ products.start_index }}–{{ products.end_index }} of {{ products.paginator.count }} results
+        {% else %}
+            No products match your filters.
+        {% endif %}
+    </div>
+    
+    <div class="product-grid">
+        {% for product in products %}
+            <div class="product-card">
+                {% if product.discount_price %}
+                    <span class="discount-badge">Save {{ product.price|floatformat:0|sub:product.discount_price|floatformat:0 }} ({{ product.price|floatformat:0|sub:product.discount_price|div:product.price|multiply:100|floatformat:0 }}% off)</span>
+                {% endif %}
+                
+                <img src="{{ product.img.url }}" alt="{{ product.title }}" width="200" class="product-image">
+                <h3>{{ product.title }}</h3>
+                
+                <!-- Pricing -->
+                <div class="price-section">
+                    {% if product.discount_price %}
+                        <p class="original-price">₹{{ product.price|floatformat:0 }} <span class="strikethrough"></span></p>
+                        <p class="discount-price">₹{{ product.discount_price|floatformat:0 }}</p>
+                    {% else %}
+                        <p class="price">₹{{ product.price|floatformat:0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <p><strong>Type:</strong> {{ product.get_type_display }}</p>
+                {% if product.material %}<p><strong>Material:</strong> {{ product.material }}</p>{% endif %}
+                {% if product.color %}<p><strong>Color:</strong> {{ product.color }}</p>{% endif %}
+                {% if product.width or product.height or product.depth %}
+                    <p><strong>Dimensions:</strong> {{ product.width }}W x {{ product.height }}H x {{ product.depth }}D inches</p>
+                {% endif %}
+                {% if product.brand %}<p><strong>Brand:</strong> {{ product.brand }}</p>{% endif %}
+                <p><strong>Stock:</strong> 
+                    {% if product.stock > 0 %}
+                        <span class="in-stock">{{ product.stock }} available</span>
+                    {% else %}
+                        <span class="out-of-stock">Out of Stock</span>
+                    {% endif %}
+                </p>
+                {% if product.description %}
+                    <p class="description">{{ product.description|truncatewords:20 }}</p>
+                {% endif %}
+                <p class="date">Added on: {{ product.date|date:"M d, Y" }}</p>
+                
+                <!-- Action Buttons for Customers -->
+                <div class="customer-actions">
+                    <a href="{% url 'product_detail' product.pk %}" class="btn-view">View Details</a>
+                    {% if product.stock > 0 %}
+                        <a href="{% url 'add_to_cart' product.pk %}" class="btn-cart">Add to Cart</a>
+                    {% endif %}
+                </div>
+                
+                {% if user.is_authenticated and user.is_superuser %}
+                    <!-- Admin Controls -->
+                    <div class="admin-actions">
+                        <a href="{% url 'edit_furniture' product.pk %}" class="btn-edit">Edit</a>
+                        <a href="{% url 'delete_furniture' product.pk %}" class="btn-delete" onclick="return confirm('Are you sure?')">Delete</a>
+                    </div>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="no-products">
+                <p>No products found matching your criteria. Try adjusting your filters.</p>
+                <a href="{% url 'your_view_name' %}" class="btn-clear">Clear Filters</a>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if products.has_other_pages %}
+        <div class="pagination">
+            {% if products.has_previous %}
+                <a href="?page={{ products.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.discount %}&discount={{ request.GET.discount }}{% endif %}{% if request.GET.in_stock %}&in_stock={{ request.GET.in_stock }}{% endif %}{% if request.GET.featured %}&featured={{ request.GET.featured }}{% endif %}" class="btn-page">Previous</a>
+            {% endif %}
+            
+            {% for num in products.paginator.page_range %}
+                {% if products.number == num %}
+                    <span class="current-page">{{ num }}</span>
+                {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                    <a href="?page={{ num }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.discount %}&discount={{ request.GET.discount }}{% endif %}{% if request.GET.in_stock %}&in_stock={{ request.GET.in_stock }}{% endif %}{% if request.GET.featured %}&featured={{ request.GET.featured }}{% endif %}" class="btn-page">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            
+            {% if products.has_next %}
+                <a href="?page={{ products.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.discount %}&discount={{ request.GET.discount }}{% endif %}{% if request.GET.in_stock %}&in_stock={{ request.GET.in_stock }}{% endif %}{% if request.GET.featured %}&featured={{ request.GET.featured }}{% endif %}" class="btn-page">Next</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</section>
+
+<!-- Suggested CSS for Professional Styling (Add to your stylesheet) -->
+<style>
+    .filter-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-form { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+    .filter-group { display: flex; align-items: center; gap: 5px; }
+    .filter-group select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+    .checkbox-group input[type="checkbox"] { margin-right: 5px; }
+    .btn-clear { background: #f8f9fa; border: 1px solid #ddd; padding: 8px 16px; border-radius: 4px; text-decoration: none; color: #333; }
+    .btn-clear:hover { background: #e9ecef; }
+    .results-summary { text-align: center; margin-bottom: 20px; color: #666; font-style: italic; }
+    .product-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: box-shadow 0.3s; }
+    .product-card:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+    .discount-badge { background: #ff6b6b; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; position: absolute; top: 10px; right: 10px; }
+    .price-section { margin: 10px 0; }
+    .original-price { text-decoration: line-through; color: #999; display: inline; }
+    .discount-price { color: #e74c3c; font-size: 1.2em; font-weight: bold; display: inline; margin-left: 10px; }
+    .price { font-size: 1.2em; font-weight: bold; color: #27ae60; }
+    .in-stock { color: #27ae60; }
+    .out-of-stock { color: #e74c3c; }
+    .description { font-size: 0.9em; color: #666; }
+    .customer-actions { display: flex; gap: 10px; margin-top: 10px; }
+    .btn-view, .btn-cart { padding: 8px 16px; border-radius: 4px; text-decoration: none; }
+    .btn-view { background: #3498db; color: white; }
+    .btn-cart { background: #27ae60; color: white; }
+    .admin-actions { margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; }
+    .btn-edit { background: #f39c12; color: white; padding: 5px 10px; text-decoration: none; margin-right: 5px; border-radius: 3px; }
+    .btn-delete { background: #e74c3c; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; }
+    .no-products { text-align: center; padding: 40px; }
+    .pagination { text-align: center; margin-top: 20px; }
+    .btn-page { padding: 8px 12px; margin: 0 2px; border: 1px solid #ddd; text-decoration: none; border-radius: 4px; }
+    .btn-page:hover { background: #f8f9fa; }
+    .current-page { padding: 8px 12px; background: #3498db; color: white; border-radius: 4px; }
+    .category-btn.active { background: #3498db; color: white; }
+    .product-image { width: 100%; height: 200px; object-fit: cover; border-radius: 4px; }
+</style>
+
+<!-- Note: Replace 'your_view_name', 'product_detail', 'add_to_cart' with actual URL names in your urls.py -->
+<!-- For the view (views.py), handle the GET parameters like this example: -->
+<!-- 
+queryset = CategorizePost.objects.all()
+if request.GET.get('category'):
+    queryset = queryset.filter(type=request.GET['category'])
+if request.GET.get('discount') == 'yes':
+    queryset = queryset.filter(discount_price__isnull=False)
+if request.GET.get('in_stock') == 'yes':
+    queryset = queryset.filter(stock__gt=0)
+if request.GET.get('featured') == 'yes':
+    queryset = queryset.filter(is_featured=True)
+
+sort = request.GET.get('sort', 'date_desc')  # Default to newest
+if sort == 'price_asc':
+    queryset = queryset.order_by('price')
+elif sort == 'price_desc':
+    queryset = queryset.order_by('-price')
+elif sort == 'date_desc':
+    queryset = queryset.order_by('-date')
+elif sort == 'discount_desc':
+    # Assuming discount percentage: order by (price - discount_price) / price desc
+    from django.db.models import F, ExpressionWrapper, FloatField
+    queryset = queryset.annotate(
+        discount_pct=ExpressionWrapper(
+            (F('price') - F('discount_price')) / F('price') * 100,
+            output_field=FloatField()
+        )
+    ).order_by('-discount_pct')
+elif sort == 'price_with_discount_asc':
+    # Use discount_price if available, else price
+    from django.db.models import Case, When, F
+    queryset = queryset.annotate(
+        effective_price=Case(
+            When(discount_price__isnull=False, then=F('discount_price')),
+            default=F('price'),
+            output_field=models.IntegerField()
+        )
+    ).order_by('effective_price')
+
+# Paginate
+from django.core.paginator import Paginator
+paginator = Paginator(queryset, 12)  # 12 per page
+page_number = request.GET.get('page')
+products = paginator.get_page(page_number)
+selected_category = request.GET.get('category')
+context = {'products': products, 'selected_category': selected_category}
+-->
+
+{% endblock %}

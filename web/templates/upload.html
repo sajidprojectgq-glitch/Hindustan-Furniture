@@ -1,0 +1,101 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block title %}Upload New Furniture{% endblock title %}
+
+{% block content %}
+<div class="upload-container">
+    <h1>Add New Furniture</h1>
+
+    <form method="POST" enctype="multipart/form-data" class="upload-form">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="{{ form.title.id_for_label }}">Title</label>
+            {{ form.title }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.type.id_for_label }}">Furniture Type</label>
+            {{ form.type }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.price.id_for_label }}">Price (₹)</label>
+            {{ form.price }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.discount_price.id_for_label }}">Discount Price (₹)</label>
+            {{ form.discount_price }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.stock.id_for_label }}">Stock</label>
+            {{ form.stock }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.brand.id_for_label }}">Brand</label>
+            {{ form.brand }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.material.id_for_label }}">Material</label>
+            {{ form.material }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.color.id_for_label }}">Color</label>
+            {{ form.color }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.width.id_for_label }}">Width (cm)</label>
+            {{ form.width }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.height.id_for_label }}">Height (cm)</label>
+            {{ form.height }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.depth.id_for_label }}">Depth (cm)</label>
+            {{ form.depth }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.img.id_for_label }}">Image</label>
+            {{ form.img }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.description.id_for_label }}">Description</label>
+            {{ form.description }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.is_featured.id_for_label }}">Featured</label>
+            {{ form.is_featured }}
+        </div>
+
+        <button type="submit" class="btn-submit">Upload</button>
+    </form>
+
+    <a href="{% url 'home' %}" class="back-link">← Back to Home</a>
+</div>
+
+{% if delete %}
+<div class="delete-container">
+    <h1>Delete "{{ furniture.title }}"?</h1>
+    <p>Are you sure you want to delete this furniture item? This action cannot be undone.</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn-delete">Yes, Delete</button>
+        <a href="{% url 'products' %}" class="btn-cancel">Cancel</a>
+    </form>
+</div>
+{% endif %}
+{% endblock %}

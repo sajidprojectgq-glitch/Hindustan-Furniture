@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+
+    <title>Furniture Store</title>
+    <style>
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Hindustan Furniture</div>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'products' %}">Products</a></li>
+                <li><a href="{% url 'about' %}">About Us</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    {% block content %}
+
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Transform Your Space</h1>
+            <p>Discover stylish and affordable furniture for every room.</p>
+            <a href="#products" class="btn">Shop Now</a>
+        </div>
+    </section>
+
+    <section class="products" id="products">
+        <h2>Featured Products</h2>
+        <a href="{% url 'products' %}"><button>View All Products</button></a>
+        <div class="product-grid">
+            <div class="product-card">
+                {% for product in products %}
+                <h3>{{ product.title }} </h3>
+                <a href="{% url 'details' product.pk %}">
+                    <img src="{{ product.img.url }}" alt="{{ product.title }}" width="200">
+                </a>
+                <p class="price">₹{{ product.price }}</p>
+                
+                <p>Comfortable and stylish sofa for your living room.</p>
+                    <p>Type: {{ product.type }}</p>
+                    <p>{{ product.description }}</p>
+                    
+                    <p>Date Added: {{ product.date }}</p>
+            {% empty %}
+                <p>No furniture available yet.</p>
+            {% endfor %}
+
+            </div>
+           
+    </section>
+    {% endblock %}
+    <footer>
+        <p>&copy; 2025 Hindustan Furniture. All rights reserved. <a href="{% url 'admin_login' %}">Admin Dashboard</a></p>
+    </footer>
+</body>
+</html>

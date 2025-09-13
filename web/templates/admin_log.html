@@ -1,0 +1,44 @@
+{% extends "index.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<h1>Admin Dashboard</h1>
+
+<div class="admin-actions">
+    <a href="{% url 'upload_furniture' %}" class="btn">+ Add New Furniture</a>
+    <a href="{% url 'admin_logout' %}" class="btn-logout">Logout</a>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Price</th>
+            <th>Owner</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.title }}</td>
+            <td>{{ product.get_type_display }}</td>
+            <td>₹{{ product.price }}</td>
+            <td>{{ product.owner.username }}</td>
+            <td>
+                <a href="{% url 'edit_furniture' product.pk %}">Edit</a> |
+                <form action="{% url 'delete_furniture' product.pk %}" method="POST" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" onclick="return confirm('Are you sure?')">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">No furniture added yet.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
